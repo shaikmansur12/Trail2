@@ -1,64 +1,40 @@
 const express = require('express');
-const cors = require('cors'); // Require CORS library to handle cross-origin requests
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to handle CORS
-app.use(cors({
-    origin: '*' // Adjust this to restrict to specific domains as necessary
-}));
+app.use(bodyParser.json());
+app.use(cors());
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-
-// POST Endpoint: /bfhl
 app.post('/bfhl', (req, res) => {
-    const { data } = req.body;
+    const data = req.body.data || [];
+    const userId = "Mansur_11307";
+    const email = "mansur_shaik@srmap.edu.in";
+    const rollNumber = "AP21110011307";
 
-    // Validate if data is provided and is an array
-    if (!Array.isArray(data)) {
-        return res.status(400).json({
-            is_success: false,
-            message: 'Invalid input format, expected an array'
-        });
-    }
+    const numbers = data.filter(item => !isNaN(item));
+    const alphabets = data.filter(item => /^[a-zA-Z]$/.test(item));
+    const highestAlphabet = alphabets.length > 0 ? [alphabets.sort().reverse()[0]] : [];
 
-    // Separate numbers and alphabets
-    const numbers = [];
-    const alphabets = [];
-    let highestAlphabet = '';
-
-    data.forEach(item => {
-        if (typeof item === 'number') {
-            numbers.push(item);
-        } else if (typeof item === 'string' && /^[a-zA-Z]$/.test(item)) {
-            alphabets.push(item);
-            if (!highestAlphabet || item.toLowerCase() > highestAlphabet.toLowerCase()) {
-                highestAlphabet = item;
-            }
-        }
-    });
-
-    // Construct response
-    res.json({
+    const response = {
         is_success: true,
-        user_id: "shaik_mansur_24091999",  // Customize with your actual user ID
-        email: "your_email@college.edu",  // Customize with your actual email
-        roll_number: "CS12345",  // Customize with your actual roll number
+        user_id: userId,
+        email: email,
+        roll_number: rollNumber,
         numbers: numbers,
         alphabets: alphabets,
-        highest_alphabet: highestAlphabet ? [highestAlphabet] : []
-    });
+        highest_alphabet: highestAlphabet
+    };
+
+    res.json(response);
 });
 
-// GET Endpoint: /bfhl
 app.get('/bfhl', (req, res) => {
-    // This GET request can be used to check if the service is up and running
-    res.status(200).json({ message: 'Service is operational' });
+    res.json({ operation_code: 1 });
 });
 
-// Start server
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });
