@@ -1,8 +1,15 @@
 const express = require('express');
+const cors = require('cors'); // Require CORS library to handle cross-origin requests
+
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to parse JSON
+// Middleware to handle CORS
+app.use(cors({
+    origin: '*' // Adjust this to restrict to specific domains as necessary
+}));
+
+// Middleware to parse JSON bodies
 app.use(express.json());
 
 // POST Endpoint: /bfhl
@@ -11,16 +18,19 @@ app.post('/bfhl', (req, res) => {
 
     // Validate if data is provided and is an array
     if (!Array.isArray(data)) {
-        return res.status(400).json({ is_success: false, message: 'Invalid input format' });
+        return res.status(400).json({
+            is_success: false,
+            message: 'Invalid input format, expected an array'
+        });
     }
 
     // Separate numbers and alphabets
     const numbers = [];
     const alphabets = [];
-    let highestAlphabet = null;
+    let highestAlphabet = '';
 
     data.forEach(item => {
-        if (!isNaN(item)) {
+        if (typeof item === 'number') {
             numbers.push(item);
         } else if (typeof item === 'string' && /^[a-zA-Z]$/.test(item)) {
             alphabets.push(item);
@@ -33,9 +43,9 @@ app.post('/bfhl', (req, res) => {
     // Construct response
     res.json({
         is_success: true,
-        user_id: "shaik_mansur_24091999",  // Replace with your actual user_id format
-        email: "your_email@college.edu",  // Replace with your actual email
-        roll_number: "CS12345",  // Replace with your roll number
+        user_id: "shaik_mansur_24091999",  // Customize with your actual user ID
+        email: "your_email@college.edu",  // Customize with your actual email
+        roll_number: "CS12345",  // Customize with your actual roll number
         numbers: numbers,
         alphabets: alphabets,
         highest_alphabet: highestAlphabet ? [highestAlphabet] : []
@@ -44,7 +54,8 @@ app.post('/bfhl', (req, res) => {
 
 // GET Endpoint: /bfhl
 app.get('/bfhl', (req, res) => {
-    res.status(200).json({ operation_code: 1 });
+    // This GET request can be used to check if the service is up and running
+    res.status(200).json({ message: 'Service is operational' });
 });
 
 // Start server
